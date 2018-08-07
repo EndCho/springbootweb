@@ -2,19 +2,14 @@ package com.itlaoqi.springbootweb.controller;
 
 import com.itlaoqi.springbootweb.entity.Dept;
 import com.itlaoqi.springbootweb.entity.Emp;
-import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-
-
-import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,5 +71,33 @@ public class WebController {
     }*/
 
 
+    //Ajax返回的是json数据，而不是跳转页面
+    //@RequestMapping(value = "/dept", method = RequestMethod.GET)
+    @GetMapping(value = "dept")
+    @ResponseBody //@ResponseBody代表将返回值JSON化后送给浏览器，默认情况下使用的JSON序列化工具是Jackson
+    public List<Dept> obtainDept(){
+        List<Dept> newDepts = new ArrayList<Dept>();
+        newDepts.add(new Dept(-1, "请选择", "2017-10-07"));
+        newDepts.addAll(depts);
+        return newDepts;
+    }
+
+    @GetMapping(value = "job")
+    @ResponseBody
+    public List<String> obtainJob(String d){
+        List<String> jobs = new ArrayList<>();
+        jobs.add("请选择");
+        if (d.equals("REASERCH")){
+            jobs.add("CTO");
+            jobs.add("Programer");
+        }else if(d.equals("SALES")){
+            jobs.add("CSO");
+            jobs.add("Saler");
+        }else if (d.equals("ACCOUNTING")){
+            jobs.add("CFO");
+            jobs.add("Cashier");
+        }
+        return jobs;
+    }
 
 }
