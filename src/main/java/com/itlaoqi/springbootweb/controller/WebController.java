@@ -4,14 +4,17 @@ import com.itlaoqi.springbootweb.entity.Dept;
 import com.itlaoqi.springbootweb.entity.Emp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -19,6 +22,9 @@ public class WebController {
     Logger logger = LoggerFactory.getLogger(WebController.class);
     private List<Emp> emps = new ArrayList<Emp>();
     private List<Dept> depts = new ArrayList<Dept>();
+    // Value中$()用于读取配置文件信息
+    @Value("${app.upload.location}")
+    private String path =null;
 
     public WebController() {
         emps.add(new Emp(7782, "CLARK", "DEVELOPER", "2017-01-02", 7780f, "RESEARCH"));
@@ -52,6 +58,39 @@ public class WebController {
          */
         ModelAndView mav = new ModelAndView("index");
         mav.addObject("emps",emps);
+        return mav;
+    }
+
+    //MultipartFile是上传文件接口，对应了保存的临时文件
+    //参数名与前端的name保持一致
+    //@RequestParam("photo") 代表了photo参数对应于前端name=photo的file框
+
+    /**
+     * 前后端数据绑定，后端使用bean接受，要求属性和前端name保持一致就可以自动注入
+     * @param e
+     * @param photo
+     * @return
+     * @throws Exception
+     */
+    @PostMapping(value = "/create")
+    public ModelAndView create(Emp emp, MultipartFile photo) throws Exception{
+        String path = "d:/uploaded/";
+        // photo.getOriginalFilename();原始文件名
+        // String fileName=photo.getOriginalFilename()
+        String filename = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
+        String suffix = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf("."));
+        if (!suffix.equals(".jpg")){
+            throw new RuntimeException("无效的图片格式");
+        }
+
+        emp.setPhotoFile(filename + suffix);
+        emps.add(emp);
+        //Spring 提供了一个文件操作类FileCopyUtils
+        //对上传文件的复制，称为“归档”
+        FileCopyUtils.copy(photo.getInputStream(), new FileOutputStream(path+filename+suffix));
+        //页面重定向到localhost
+        //格式为：redirect:跳转地址
+        ModelAndView mav = new ModelAndView("redirect:/");
         return mav;
     }
 

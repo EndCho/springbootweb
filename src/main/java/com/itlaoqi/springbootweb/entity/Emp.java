@@ -11,6 +11,7 @@ public class Emp {
     private Date hiredate;
     private Float sal;
     private String dname;
+    private String photoFile;
 
     public Emp(Integer empno, String ename, String job, String hiredate, Float sal, String dname) {
         this.empno = empno;
@@ -71,5 +72,13 @@ public class Emp {
 
     public void setDname(String dname) {
         this.dname = dname;
+    }
+
+    public String getPhotoFile() {
+        return photoFile;
+    }
+
+    public void setPhotoFile(String photoFile) {
+        this.photoFile = photoFile;
     }
 }
